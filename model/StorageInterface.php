@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -33,6 +34,8 @@ interface StorageInterface
      */
     public function log(LogEntity $logEntity);
 
+    public function logMultiple(LogEntity ...$logEntities): bool;
+
     /**
      * Search records in log which are meet the search criteria
      *
@@ -56,5 +59,4 @@ interface StorageInterface
      * @return integer
      */
     public function delete(array $filters);
-
 }
