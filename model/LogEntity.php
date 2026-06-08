@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +16,7 @@
  *
  * Copyright (c) 2017  (original work) Open Assessment Technologies SA;
  */
+
 
 namespace oat\taoEventLog\model;
 

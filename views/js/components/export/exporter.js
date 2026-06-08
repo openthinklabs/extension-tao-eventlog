@@ -56,7 +56,7 @@ define([
                 var params = {},
                     exportUrl;
 
-                _.forEach($form.serializeArray(), function(param){
+                _.each($form.serializeArray(), function(param){
                     params[param.name] = param.value;
                 });
 

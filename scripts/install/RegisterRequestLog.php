@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -55,9 +54,6 @@ class RegisterRequestLog extends InstallAction
             [RequestLogService::SERVICE_ID, 'catchEvent']
         );
 
-        return new common_report_Report(
-            common_report_Report::TYPE_SUCCESS,
-            __('Request log storage successfully created')
-        );
+        return new common_report_Report(common_report_Report::TYPE_SUCCESS, __('Request log storage successfully created'));
     }
 }

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,23 +15,20 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA;
+ *
+ *
  */
 
 namespace oat\taoEventLog\model\userLastActivityLog\rds;
 
-use common_exception_Error;
-use common_persistence_Persistence;
-use common_persistence_SqlPersistence;
-use common_report_Report;
-use common_session_SessionManager;
 use oat\oatbox\user\User;
+use Doctrine\DBAL\Schema\SchemaException;
+use Doctrine\DBAL\Query\QueryBuilder;
 use oat\taoEventLog\model\RdsLogIterator;
 use oat\taoEventLog\model\userLastActivityLog\UserLastActivityLog;
 use oat\oatbox\service\ConfigurableService;
-use oat\oatbox\event\Event;
-use Doctrine\DBAL\Schema\SchemaException;
-use Doctrine\DBAL\Query\QueryBuilder;
 use GuzzleHttp\Psr7\ServerRequest;
+use oat\oatbox\event\Event;
 
 /**
  * Class UserLastActivityLogStorage
@@ -41,19 +37,19 @@ use GuzzleHttp\Psr7\ServerRequest;
  */
 class UserLastActivityLogStorage extends ConfigurableService implements UserLastActivityLog
 {
-    public const OPTION_PERSISTENCE = 'persistence_id';
-    public const TABLE_NAME = 'user_last_activity_log';
+    const OPTION_PERSISTENCE = 'persistence_id';
+    const TABLE_NAME = 'user_last_activity_log';
 
-    public const COLUMN_USER_ID = self::USER_ID;
-    public const COLUMN_USER_ROLES = self::USER_ROLES;
-    public const COLUMN_ACTION = self::ACTION;
-    public const COLUMN_EVENT_TIME = self::EVENT_TIME;
-    public const COLUMN_DETAILS = self::DETAILS;
+    const COLUMN_USER_ID = self::USER_ID;
+    const COLUMN_USER_ROLES = self::USER_ROLES;
+    const COLUMN_ACTION = self::ACTION;
+    const COLUMN_EVENT_TIME = self::EVENT_TIME;
+    const COLUMN_DETAILS = self::DETAILS;
 
     /** Threshold in seconds */
-    public const OPTION_ACTIVE_USER_THRESHOLD = 'active_user_threshold';
+    const OPTION_ACTIVE_USER_THRESHOLD = 'active_user_threshold';
 
-    public const PHP_SESSION_LAST_ACTIVITY = 'tao_user_last_activity_timestamp';
+    const PHP_SESSION_LAST_ACTIVITY = 'tao_user_last_activity_timestamp';
 
     /**
      * @inheritdoc
@@ -67,14 +63,12 @@ class UserLastActivityLogStorage extends ConfigurableService implements UserLast
 
         $data = [
             self::USER_ID => $userId,
-            self::USER_ROLES => ',' . implode(',', $user->getRoles()) . ',',
+            self::USER_ROLES => ','. implode(',', $user->getRoles()). ',',
             self::COLUMN_ACTION => strval($action),
             self::COLUMN_EVENT_TIME => microtime(true),
             self::COLUMN_DETAILS => json_encode($details),
         ];
-        $this->getPersistence()->exec(
-            'DELETE FROM ' . self::TABLE_NAME . ' WHERE ' . self::USER_ID . ' = \'' . $userId . '\''
-        );
+        $this->getPersistence()->exec('DELETE FROM ' . self::TABLE_NAME . ' WHERE ' . self::USER_ID . ' = \'' . $userId . '\'');
         $this->getPersistence()->insert(self::TABLE_NAME, $data);
     }
 
@@ -118,9 +112,7 @@ class UserLastActivityLogStorage extends ConfigurableService implements UserLast
         }
 
         $stmt = $this->getPersistence()->query(
-            'SELECT count(*) as count FROM (' . $queryBuilder->getSQL() . ') as group_q',
-            $queryBuilder->getParameters()
-        );
+            'SELECT count(*) as count FROM (' .$queryBuilder->getSQL() . ') as group_q', $queryBuilder->getParameters());
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
         return intval($data['count']);
     }
@@ -135,7 +127,7 @@ class UserLastActivityLogStorage extends ConfigurableService implements UserLast
         $operation = strtolower($filter[1]);
         $val = $filter[2];
         $val2 = isset($filter[3]) ? $filter[3] : null;
-
+        
         if (!in_array($colName, $this->getColumnNames())) {
             return;
         }
@@ -174,7 +166,7 @@ class UserLastActivityLogStorage extends ConfigurableService implements UserLast
     }
 
     /**
-     * @return common_persistence_SqlPersistence
+     * @return \common_persistence_SqlPersistence
      * @throws
      */
     private function getPersistence()
@@ -195,8 +187,8 @@ class UserLastActivityLogStorage extends ConfigurableService implements UserLast
     /**
      * Initialize log storage
      *
-     * @param common_persistence_Persistence $persistence
-     * @return common_report_Report
+     * @param \common_persistence_Persistence $persistence
+     * @return \common_report_Report
      */
     public static function install($persistence)
     {
@@ -208,21 +200,13 @@ class UserLastActivityLogStorage extends ConfigurableService implements UserLast
             $table = $schema->createTable(self::TABLE_NAME);
             $table->addOption('engine', 'InnoDB');
             $table->addColumn(static::COLUMN_USER_ID, "string", ["length" => 255]);
-            $table->addColumn(static::COLUMN_USER_ROLES, "text", ["notnull" => true]);
+            $table->addColumn(static::COLUMN_USER_ROLES, "string", ["notnull" => true, "length" => 4096]);
             $table->addColumn(static::COLUMN_ACTION, "string", ["notnull" => false, "length" => 4096]);
-            $table->addColumn(
-                static::COLUMN_EVENT_TIME,
-                'decimal',
-                ['precision' => 14, 'scale' => 4, "notnull" => true]
-            );
+            $table->addColumn(static::COLUMN_EVENT_TIME, 'decimal', ['precision' => 14, 'scale'=>4, "notnull" => true]);
             $table->addColumn(static::COLUMN_DETAILS, "text", ["notnull" => false]);
-
             $table->addIndex([static::COLUMN_USER_ID], 'IDX_' . static::TABLE_NAME . '_' . static::COLUMN_USER_ID);
-            $table->addIndex(
-                [static::COLUMN_EVENT_TIME],
-                'IDX_' . static::TABLE_NAME . '_' . static::COLUMN_EVENT_TIME
-            );
-        } catch (SchemaException $e) {
+            $table->addIndex([static::COLUMN_EVENT_TIME], 'IDX_' . static::TABLE_NAME . '_' . static::COLUMN_EVENT_TIME);
+        } catch(SchemaException $e) {
             \common_Logger::i('Database Schema already up to date.');
         }
 
@@ -231,19 +215,16 @@ class UserLastActivityLogStorage extends ConfigurableService implements UserLast
             $persistence->exec($query);
         }
 
-        return new common_report_Report(
-            common_report_Report::TYPE_SUCCESS,
-            __('User activity log successfully registered.')
-        );
+        return new \common_report_Report(\common_report_Report::TYPE_SUCCESS, __('User activity log successfully registered.'));
     }
 
     /**
      * @param Event $event
-     * @throws common_exception_Error
+     * @throws \common_exception_Error
      */
     public function catchEvent(Event $event)
     {
-        if (common_session_SessionManager::isAnonymous()) {
+        if (\common_session_SessionManager::isAnonymous()) {
             return;
         }
 
@@ -253,11 +234,11 @@ class UserLastActivityLogStorage extends ConfigurableService implements UserLast
             $lastStoredActivity = $phpSession->getAttribute(self::PHP_SESSION_LAST_ACTIVITY);
         }
 
-        $threshold = $this->getOption(self::OPTION_ACTIVE_USER_THRESHOLD) ?: 0;
+        $threshold = $this->getOption(self::OPTION_ACTIVE_USER_THRESHOLD)?: 0;
 
         $currentTime = microtime(true);
         if (!$lastStoredActivity || $currentTime > ($lastStoredActivity + $threshold)) {
-            $user = common_session_SessionManager::getSession()->getUser();
+            $user = \common_session_SessionManager::getSession()->getUser();
             $request = ServerRequest::fromGlobals();
             $phpSession->setAttribute(self::PHP_SESSION_LAST_ACTIVITY, $currentTime);
             /** @var UserActivityLogStorage $userActivityLog */

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -49,9 +48,7 @@ class RegisterUserLastActivityLog extends AbstractAction
         }
         $service->setOption(UserLastActivityLogStorage::OPTION_ACTIVE_USER_THRESHOLD, 300);
         $persistenceManager = $this->getServiceManager()->get(\common_persistence_Manager::SERVICE_ID);
-        $persistence = $persistenceManager->getPersistenceById(
-            $service->getOption(UserLastActivityLogStorage::OPTION_PERSISTENCE)
-        );
+        $persistence = $persistenceManager->getPersistenceById($service->getOption(UserLastActivityLogStorage::OPTION_PERSISTENCE));
 
         UserLastActivityLogStorage::install($persistence);
 
@@ -64,9 +61,6 @@ class RegisterUserLastActivityLog extends AbstractAction
         );
 
         $this->getServiceManager()->register(EventManager::SERVICE_ID, $eventManager);
-        return new common_report_Report(
-            common_report_Report::TYPE_SUCCESS,
-            __('User activity log storage successfully created')
-        );
+        return new common_report_Report(common_report_Report::TYPE_SUCCESS, __('User activity log storage successfully created'));
     }
 }

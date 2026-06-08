@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,7 +15,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  * Copyright (c) 2017  (original work) Open Assessment Technologies SA;
- *
+ * 
  */
 
 namespace oat\taoEventLog\model;
@@ -31,7 +30,7 @@ use oat\oatbox\service\ConfigurableService;
  */
 abstract class AbstractLog extends ConfigurableService
 {
-    public const OPTION_STORAGE = 'storage';
+    const OPTION_STORAGE = 'storage';
 
     /**
      * @param Event $event
@@ -48,8 +47,7 @@ abstract class AbstractLog extends ConfigurableService
         return $this->getStorage()->search($filters, $options);
     }
 
-    public function delete(array $filters)
-    {
+    public function delete(array $filters){
         return $this->getStorage()->delete($filters);
     }
 

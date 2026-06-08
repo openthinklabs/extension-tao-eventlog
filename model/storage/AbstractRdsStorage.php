@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -36,9 +35,9 @@ use Doctrine\DBAL\Query\QueryBuilder;
  */
 abstract class AbstractRdsStorage extends ConfigurableService implements StorageInterface, RdsStorageInterface
 {
-    public const OPTION_PERSISTENCE = 'persistence';
-    public const DATE_TIME_FORMAT = 'Y-m-d H:i:s';
-    public const ID = 'id';
+    const OPTION_PERSISTENCE = 'persistence';
+    const DATE_TIME_FORMAT = 'Y-m-d H:i:s';
+    const ID = 'id';
 
     /**
      * Persistence for DB
@@ -137,9 +136,7 @@ abstract class AbstractRdsStorage extends ConfigurableService implements Storage
         }
 
         $stmt = $this->getPersistence()->query(
-            'SELECT count(*) as count FROM (' . $queryBuilder->getSQL() . ') as group_q',
-            $queryBuilder->getParameters()
-        );
+            'SELECT count(*) as count FROM (' .$queryBuilder->getSQL() . ') as group_q', $queryBuilder->getParameters());
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
         return intval($data['count']);
     }
@@ -167,11 +164,11 @@ abstract class AbstractRdsStorage extends ConfigurableService implements Storage
             $condition = "$colName between ? AND ?";
             $params[] = $val;
             $params[] = $val2;
-        } elseif ($operation === 'like') {
+        } else if ($operation === 'like') {
             $condition = "lower($colName) $operation ?";
             $params[] = strtolower($val);
-        } elseif ($operation === 'in') {
-            $condition = "$colName $operation (" . implode(',', array_fill(0, count($val), '?')) . ")";
+        } else if ($operation === 'in') {
+            $condition = "$colName $operation (" . implode(',',array_fill(0, count($val),'?')).")";
             $params = array_values($val);
         } else {
             $condition = "$colName $operation ?";
@@ -214,12 +211,13 @@ abstract class AbstractRdsStorage extends ConfigurableService implements Storage
       * @return integer
       * @throws \oat\oatbox\service\exception\InvalidServiceManagerException
       */
-    public function delete(array $filters)
-    {
-        $qb = $this->getPersistence()->getPlatForm()->getQueryBuilder()->delete($this->getTableName());
-        foreach ($filters as $filter) {
-            $this->addFilter($qb, $filter);
-        }
-        return $qb->execute();
-    }
-}
+     public function delete(array $filters )
+     {
+         $qb = $this->getPersistence()->getPlatForm()->getQueryBuilder()->delete($this->getTableName());
+         foreach ($filters as $filter){
+             $this->addFilter($qb, $filter);
+         }
+         return $qb->execute();
+     }
+
+ }

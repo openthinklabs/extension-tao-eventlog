@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -45,6 +44,7 @@ use Psr\Http\Message\RequestInterface;
  */
 class NoStorage extends AbstractRequestLogStorage
 {
+
     /**
      * @param RequestInterface $request
      * @param User $user
@@ -52,5 +52,6 @@ class NoStorage extends AbstractRequestLogStorage
      */
     public function log(RequestInterface $request, User $user)
     {
+
     }
 }
